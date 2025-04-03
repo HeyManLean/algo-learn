@@ -108,6 +108,39 @@ class MinPriorityQueue:
         return self.size == 0
 
 
+# -*- coding: utf-8 -*-
+
+import heapq
+
+# @lc code=start
+class Solution(object):
+    def nthUglyNumber(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        heap = [1]
+        q = [1]
+        visited = {}
+
+        while len(heap) < n and q:
+            v = q[0]
+            for i in [2, 3, 5]:
+                if visited.get(v * i):
+                    continue
+
+                visited[v*i] = True
+                q.append(v * i)
+                heapq.heappush(heap, v*i)
+
+            q = q[1:]
+
+        for i in range(n - 1):
+            heapq.heappop(heap)
+
+        return heapq.heappop(heap)
+
+
 if __name__ == '__main__':
     pq = MinPriorityQueue(10)
     pq.push(3)
@@ -121,5 +154,7 @@ if __name__ == '__main__':
     assert pq.pop() == 2
     assert pq.pop() == 3
     assert pq.pop() == 4
+
+    assert Solution().nthUglyNumber(10) == 25
 
     print("OK")
