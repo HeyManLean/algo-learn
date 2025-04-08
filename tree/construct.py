@@ -45,10 +45,10 @@ def gen_tree(arr: list[int]):
     i = 0
     while q:
         cur = q.pop(0)
-        if i + 1 < len(arr) and arr[i + 1]:
+        if i + 1 < len(arr) and arr[i + 1] is not None:
             cur.left = TreeNode(arr[i + 1])
             q.append(cur.left)
-        if i + 2 < len(arr) and arr[i + 2]:
+        if i + 2 < len(arr) and arr[i + 2] is not None:
             cur.right = TreeNode(arr[i + 2])
             q.append(cur.right)
         i += 2
