@@ -33,36 +33,31 @@ def dijkstra(start: int, graph: list[list[tuple]]) -> list[int]:
     2. 遍历，如果当前距离小于最小距离，则交换，否则不需要加入遍历队列中
     - 优先遍历最小权重的边
     """
-    min_dist = [float("inf")] * len(graph)
-    min_dist[start] = 0
+    dist_to = [float('inf')] * len(graph)
+    dist_to[start] = 0  # 到自身距离为 0
 
-    q = []
-    heapq.heappush(q, (0, start))
+    pq = [(0, start)]  # 将自己加到队列中，开始层序遍历
 
-    while q:
-        cur_dist, cur = heapq.heappop(q)
-        if cur_dist > min_dist[cur]:
+    while pq:
+        cur_dist, cur = heapq.heappop(pq)
+        # 如果已经有过其他路径比当前路径小，则跳过
+        if dist_to[cur] < cur_dist:
             continue
 
-        for nxt_node in graph[cur]:
-            nxt, weight = nxt_node
+        # 对该节点的其他邻节点进行判断
+        for nxt, dist in graph[cur]:
+            # 邻节点的最新距离为当前节点距离+到邻节点的距离
+            nxt_dist = cur_dist + dist
+            if dist_to[nxt] < nxt_dist:
+                continue
 
-            next_dist = min_dist[cur] + weight
-            if next_dist < min_dist[nxt]:
-                min_dist[nxt] = next_dist
-                heapq.heappush(q, (next_dist, nxt))
+            dist_to[nxt] = nxt_dist
+            heapq.heappush(pq, (nxt_dist, nxt))
 
-    return min_dist
+    return dist_to
 
 
 class Solution:
-    def build_graph(self, n, weights):
-        matrix = [[0 for _ in range(n)] for _ in range(n)]
-        for weight in weights:
-            i, j, w = weight
-            matrix[i][j] = w
-        return matrix
-
     def networkDelayTime(self, times: list[list[int]], n: int, k: int) -> int:
         """743. 网络延迟时间
         有 n 个网络节点，标记为 1 到 n。
@@ -119,7 +114,7 @@ class Solution:
 
         pq = [(1, start_node)]
         while pq:
-            cur_prob, cur_node = pq.pop()
+            cur_prob, cur_node = heapq.heappop(pq)
 
             # 保留概率更大的记录
             if cur_prob < prob_to[cur_node]:
