@@ -3,12 +3,10 @@ from collections import OrderedDict
 
 
 class Node:
-    def __init__(self, key, val, freq=1, prev=None, next=None):
+    def __init__(self, key, val, freq=1):
         self.key = key
         self.val = val
         self.freq = freq
-        self.prev = prev  # type:Node
-        self.next = next  # type:Node
 
 
 class LFUCache:

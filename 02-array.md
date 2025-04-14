@@ -276,9 +276,18 @@ def spiralOrder(matrix):
 class NumArray:
     # 前缀和数组
     def __init__(self, nums: List[int]):
+        self.nums = nums
         self.sums = [0] * (len(nums) + 1)
         for i in range(1, len(self.sums)):
             self.sums[i] = self.sums[i - 1] + nums[i - 1]
+
+    def update(self, index: int, val: int) -> None:
+        old = self.nums[index]
+        self.nums[index] = val
+
+        diff = val - old
+        for i in range(index + 1, len(self.sums)):
+            self.sums[i] += diff
 
     # 查询闭区间 [left, right] 的累加和
     def sumRange(self, left: int, right: int) -> int:

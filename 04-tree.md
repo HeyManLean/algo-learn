@@ -668,3 +668,226 @@ class Solution:
 
         return root
 ```
+
+## 8. 线段树
+
+用于对区间聚合值进行频繁读取的场景，更新支持区间更新，并算出区间聚合值
+
+结构：
+1. 每个节点维护区间的聚合值，`[start,end]`
+2. 访问该节点区间的子区间时，需要进一步二分初始化左右节点
+    - 左节点：`[start,mid]`
+    - 右节点: `[mid+1,end]`
+
+更新：
+1. 懒加载，先更新当前区间的值，并标记 assign 为当前缓存值，等到访问子区间时需要将 assign 往下传递
+2. 子区间的取值为：`(end-start)*val`
+
+查询：
+1. 判断查询的区间是在当前节点区间中点的左侧，还是右侧，进行二分递归查询
+
+
+```py
+
+class RangeSegmentNode:
+    def __init__(self, start, end, val=0, left=None, right=None):
+        self.start = start
+        self.end = end
+        self.val = val
+        self.left = left  # type:RangeSegmentNode
+        self.right = right  # type:RangeSegmentNode
+        self.has_assign = False  # 判断是否有值需要往下传递
+        self.assign = 0         # 缓存需要向下传递的值
+
+
+class SumRangeSegmentTree:
+    """懒加载线段树（求和）
+
+    更新上级线段树时，先对该范围的上层线段树进行更新，
+    并记录更新的值，等到下次要范围下层线段树时，将更新的值传递到下层
+
+    主要用于范围更新和范围取值
+    """
+    def __init__(self, start=0, end=1000, default=0):
+        self.root = RangeSegmentNode(start, end, (end - start + 1) * default)
+        self.default = default
+
+    def init_children_node(self, node: RangeSegmentNode):
+        if node.start >= node.end:
+            return
+
+        mid = node.start + (node.end - node.start) // 2
+        if not node.left:
+            node.left = RangeSegmentNode(node.start, mid, self.default)
+        if not node.right:
+            node.right = RangeSegmentNode(mid + 1, node.end, self.default)
+
+    def push_down(self, node: RangeSegmentNode):
+        """先把左右节点当前的 assign 下钻，再将当前节点的 assign 同步到左右节点"""
+        if not node.has_assign:
+            return
+
+        self.init_children_node(node)
+
+        # 一般为覆盖原有的值，不需要将子节点的assign继续往下传递，直接将当前节点assign覆盖
+        left = node.left
+        right = node.right
+
+        left.val = (left.end - left.start + 1) * node.assign
+        left.has_assign = True
+        left.assign = node.assign
+
+        right.val = (right.end - right.start + 1) * node.assign
+        right.has_assign = True
+        right.assign = node.assign
+
+        node.has_assign = False
+
+    def range_update(self, start, end, val):
+        return self._range_update(self.root, start, end, val)
+
+    def _range_update(self, node: RangeSegmentNode, start, end, val):
+        """更新范围，如果节点范围在需要更新的范围内，则更新节点的值，并设置懒加载数值"""
+        if node.start >= start and node.end <= end:
+            node.val = (node.end - node.start + 1) * val
+            node.has_assign = True
+            node.assign = val
+            return
+
+        self.init_children_node(node)
+        self.push_down(node)
+
+        mid = node.start + (node.end - node.start) // 2
+        if end <= mid:
+            self._range_update(node.left, start, end, val)
+        elif start > mid:
+            self._range_update(node.right, start, end, val)
+        else:
+            self._range_update(node.left, start, mid, val)
+            self._range_update(node.right, mid + 1, end, val)
+
+        # 当前节点的值
+        node.val = node.left.val + node.right.val
+
+
+    def query(self, start, end):
+        return self._query(self.root, start, end)
+
+    def _query(self, node: RangeSegmentNode, start, end):
+        """对node的值进行二分，判断区域左右进行递归"""
+        if start > end:
+            return 0
+
+        # 如果目标区间包含了当前区间，则返回当前区间的值
+        if start <= node.start and end >= node.end:
+            return node.val
+
+        self.init_children_node(node)
+        self.push_down(node)
+
+        mid = node.start + (node.end - node.start) // 2
+        if end <= mid:
+            return self._query(node.left, start, end)
+        if start > mid:
+            return self._query(node.right, start, end)
+
+        return self._query(node.left, start, mid) + self._query(node.right, mid + 1, end)
+```
+
+## 9. 二叉堆
+
+二叉堆是一种数据结构，主要用于优先级队列的场景，从多个元素中多次获取最小或最大值
+- 涉及最值问题
+- 第 K 大数值
+
+二叉堆结构，使用数组表示一棵完美二叉树
+- 根节点都小于（或大于）左右两个节点
+- 通过根节点获取左右节点位置：
+    - 左节点: `n * 2 + 1`
+    - 右节点: `n * 2 + 2`
+- 通过子节点获取根节点: `(n - 1) // 2`
+
+构造二叉堆：
+- 新增节点：先加到数组尾部，向上跟父节点比较，如果较小（或较大）则交换
+- 删除节点：将节点跟尾部节点值交换，向下跟（较小或较大）的子节点进行比较并交换
+
+```py
+
+class MinPriorityQueue:
+    # 创建一个容量为 capacity 的最小优先级队列
+    def __init__(self, capacity: int):
+        self.heap = [None] * capacity
+        self.size = 0
+
+    # 向队列中插入一个元素
+    def push(self, x: int):
+        if self.is_full():
+            raise ValueError('queue full')
+
+        last = self.size
+        self.heap[last] = x
+        self.size += 1
+        self.swim(last)
+
+    # 返回队列中的最小元素（堆顶元素）
+    def peek(self) -> int:
+        return self.heap[0]
+
+    # 删除并返回队列中的最小元素（堆顶元素）
+    def pop(self) -> int:
+        if self.is_empty():
+            raise ValueError('queue empty')
+        
+        val = self.heap[0]
+
+        self.heap[0] = self.heap[self.size - 1]
+        # self.heap[self.size - 1] = None  # 可以不用删除
+        self.size -= 1
+
+        self.sink(0)
+        return val
+
+    def swim(self, node):
+        """向上上浮，跟父节点交换"""
+        parent = self.parent(node)
+        if parent < 0:
+            return
+
+        # 当前节点小于父节点，跟父节点交换
+        if self.heap[node] < self.heap[parent]:
+            self.swap(node, parent)
+            return self.swim(parent)
+
+    def sink(self, node):
+        """向下下沉，跟子节点交换"""
+        left = self.left(node)
+        if left >= self.size:
+            return
+
+        min_node = left
+        right = self.right(node)
+        if right < self.size and self.heap[left] > self.heap[right]:
+            min_node = right
+
+        if self.heap[min_node] < self.heap[node]:
+            self.swap(min_node, node)
+            self.sink(min_node)
+
+    def swap(self, i, j):
+        self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
+
+    def parent(self, node):
+        return (node - 1) // 2
+    
+    def left(self, node):
+        return node * 2 + 1
+    
+    def right(self, node):
+        return node * 2 + 2
+    
+    def is_full(self):
+        return len(self.heap) == self.size
+    
+    def is_empty(self):
+        return self.size == 0
+```
