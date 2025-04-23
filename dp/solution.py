@@ -18,6 +18,18 @@ class Solution:
         输入：coins = [1, 2, 5], amount = 11
         输出：3
         """
+        dp = [float('inf')] * (amount + 1)
+        dp[0] = 0
+
+        for i in range(1, amount + 1):
+            # 做选择
+            for coin in coins:
+                if i - coin >= 0:
+                    dp[i] = min(1 + dp[i - coin], dp[i])
+
+        return dp[amount] if dp[amount] != float("inf") else -1
+
+
         memo = [-2] * (amount + 1)
 
         def dp(coins, amount):
