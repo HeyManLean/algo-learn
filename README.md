@@ -1,5 +1,6 @@
 # 算法学习
 
+python3.13.2
 
 - [1.链表](01-linked_list.md)
 - [2.数组](02-array.md)
@@ -8,3 +9,4 @@
 - [5.常用算法](05-utils.md)
 - [6.图](06-graph.md)
 - [7.回溯&DFS&BFS](07-backtrack.md)
+- [8.动态规划](08-dp.md)
