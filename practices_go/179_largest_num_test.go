@@ -29,7 +29,6 @@ func largestNumber(nums []int) string {
 	mergeSort(strList, 0, len(strList))
 
 	result := strings.Join(strList, "")
-	// 处理全0的情况，返回"0"而不是"000..."
 	if len(result) > 0 && result[0] == '0' {
 		return "0"
 	}
