@@ -63,7 +63,7 @@ func TestWays(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			if res := ways(tt.pizza, tt.k); res != tt.expected {
+			if res := waysV2(tt.pizza, tt.k); res != tt.expected {
 				t.Errorf("ways(%v, %d) = %d, expected %d", tt.pizza, tt.k, res, tt.expected)
 			}
 		})
