@@ -99,7 +99,7 @@ func TestWordBreak(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			result := wordBreak(tt.s, tt.wordDict)
+			result := wordBreak2(tt.s, tt.wordDict)
 			if !equalStringSlices(result, tt.expected) {
 				t.Errorf("wordBreak(%q, %v) = %v, expected %v", tt.s, tt.wordDict, result, tt.expected)
 			}

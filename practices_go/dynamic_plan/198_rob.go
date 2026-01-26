@@ -1,6 +1,6 @@
 package dynamicplan
 
-func rob(nums []int) int {
+func rob1(nums []int) int {
 	/*
 		198. 打家劫舍
 

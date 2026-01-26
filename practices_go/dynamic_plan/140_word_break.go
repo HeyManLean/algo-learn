@@ -1,6 +1,6 @@
 package dynamicplan
 
-func wordBreak(s string, wordDict []string) []string {
+func wordBreak2(s string, wordDict []string) []string {
 	/*
 		140. 单词拆分 II
 
