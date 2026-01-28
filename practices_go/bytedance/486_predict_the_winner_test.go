@@ -62,9 +62,9 @@ func TestPredictTheWinner(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := PredictTheWinner(tt.nums)
+			result := predictTheWinner(tt.nums)
 			if result != tt.expected {
-				t.Errorf("PredictTheWinner(%v) = %v, expected %v", tt.nums, result, tt.expected)
+				t.Errorf("predictTheWinner(%v) = %v, expected %v", tt.nums, result, tt.expected)
 			}
 		})
 	}
