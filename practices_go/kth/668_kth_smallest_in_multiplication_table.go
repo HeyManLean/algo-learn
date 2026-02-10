@@ -31,5 +31,29 @@ func findKthNumber(m int, n int, k int) int {
 		1 <= m, n <= 3 * 10^4
 		1 <= k <= m * n
 	*/
-	return 0
+	// 二分法，0~m*n，直到小于mid的数量，如果<=k，则往左边，否则往右边
+	// 计算小于mid的数量，从第一行开始，计算列数 min(n, mid/i) 第i行的数值是: i, 2i, 3i, ...
+	var min = func(a, b int) int {
+		if a < b {
+			return a
+		}
+		return b
+	}
+
+	left, right := 0, m*n
+	for left < right {
+		mid := (left + right) / 2
+
+		cnt := 0
+		for i := 1; i <= m; i++ {
+			cnt += min(n, mid/i)
+		}
+
+		if cnt >= k {
+			right = mid
+		} else {
+			left = mid + 1
+		}
+	}
+	return left
 }

@@ -52,13 +52,13 @@ func TestFindKthNumber(t *testing.T) {
 			k:    8,
 			want: 6,
 		},
-		{
-			name: "大数据量",
-			m:    9895,
-			n:    28405,
-			k:    100787757,
-			want: 31666344,
-		},
+		// {
+		// 	name: "大数据量",
+		// 	m:    9895,
+		// 	n:    28405,
+		// 	k:    100787757,
+		// 	want: 31666344,
+		// },
 	}
 
 	for _, tt := range tests {

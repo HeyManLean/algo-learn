@@ -5,6 +5,15 @@ import (
 	"testing"
 )
 
+func listToSlice(head *ListNode) []int {
+	var result []int
+	for head != nil {
+		result = append(result, head.Val)
+		head = head.Next
+	}
+	return result
+}
+
 func TestReverseBetween(t *testing.T) {
 	tests := []struct {
 		name  string
